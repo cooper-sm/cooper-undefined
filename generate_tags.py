@@ -34,8 +34,8 @@ def rewrite_image_paths(article_html):
 
 # Update head to remove any <style> blocks and include style.css
 head = re.sub(r'<style>.*?</style>', '', head, flags=re.DOTALL)
-head = re.sub(r'</head>', '    <link href="/style.css" rel="stylesheet" type="text/css" media="all">\n</head>', head)
-head = re.sub(r'<strong>cooper</strong>', '<a href="/index.html"><strong>cooper</strong></a>', head)
+head = re.sub(r'</head>', '    <link href="/cooper-undefined/style.css" rel="stylesheet" type="text/css" media="all">\n</head>', head)
+head = re.sub(r'<strong>cooper</strong>', '<a href="/cooper-undefined/index.html"><strong>cooper</strong></a>', head)
 
 # generate tag pages
 for tag, entries in tag_map.items():
@@ -45,7 +45,7 @@ for tag, entries in tag_map.items():
 
     head = re.sub(r'<title>.*?</title>', f'<title>{tag.title()}</title>', head, flags=re.DOTALL)
 
-    with open(f"./cooper-undefined/tags/{tag}.html", "w", encoding="utf-8") as f:
+    with open(f"./tags/{tag}.html", "w", encoding="utf-8") as f:
         f.write(f"""<!DOCTYPE html>
 <html lang="en">
 {head}
@@ -53,7 +53,7 @@ for tag, entries in tag_map.items():
 {header}
 
 <main>
-  <p><a href="/tags.html">← All tags</a></p>
+  <p><a href="/cooper-undefined/tags.html">← All tags</a></p>
   <h1>{tag.title()}</h1>
 
   {''.join(rewritten_entries)}
