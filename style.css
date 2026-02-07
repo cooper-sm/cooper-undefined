@@ -1,0 +1,267 @@
+/* =======================
+   VARIABLES
+======================= */
+:root {
+  --color-text: #111;
+  --color-muted: #666;
+  --color-bg: #fff;
+  --border-color: #e5e5e5;
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 2rem;
+
+  --font-size-sm: 0.85rem;
+  --font-size-md: 0.9rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.5rem;
+  --font-size-xxl: 1.75rem;
+}
+
+/* =======================
+   GLOBAL STYLES
+======================= */
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/*a:hover {*/
+/*  text-decoration: underline;*/
+/*}*/
+.hover-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* the image itself */
+.hover-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-60%) translateY(-40%);
+  width: 100px;              /* adjust */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+/* reveal on hover */
+.hover-wrap:hover .hover-image {
+  opacity: 1;
+}
+
+/* -----------------------
+   HEADER / NAV
+----------------------- */
+header {
+  position: sticky;
+  top: 0;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--space-lg);
+  z-index: 10;
+}
+
+header nav {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header nav div a {
+  margin-right: 1.5rem; /* space between menu items */
+}
+
+header a {
+  margin-right: var(--space-lg);
+  font-size: var(--font-size-md);
+}
+
+/* -----------------------
+   MAIN LAYOUT
+----------------------- */
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) 4rem;
+}
+
+h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  margin-bottom: var(--space-xl);
+}
+
+/* -----------------------
+   FONTS
+----------------------- */
+@font-face {
+  font-family: "orchard";
+  src:
+    url("/fonts/Orchard-Linear.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Chicory";
+  src: url("/fonts/Chicory.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.orchard {
+  font-family: "orchard", serif;
+}
+.chicory {
+  font-family: "Chicory", serif;
+}
+
+/* =======================
+   IMAGE PAGE
+======================= */
+.page-images .image-entry, 
+.page-tags .image-entry{
+  margin-bottom: 4rem;
+}
+/* Apply image sizing for both images.html and tag pages */
+.page-images img,
+.page-tags img {
+  max-height: 70vh;
+  width: auto;
+  max-width: 100%;
+  display: block;
+  margin-bottom: var(--space-md);
+}
+
+.page-images .image-pair ,
+.page-tags .image-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.page-images .image-pair img,
+.page-tags .image-pair img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+
+@media (max-width: 700px) {
+  .page-images .image-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* -----------------------
+   META + DESCRIPTION
+----------------------- */
+.meta {
+  font-size: var(--font-size-md);
+  color: var(--color-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.description {
+  font-size: var(--font-size-lg);
+  max-width: 700px;
+}
+
+/* -----------------------
+   TAGS
+----------------------- */
+.tags {
+  margin-top: var(--space-sm);
+}
+
+.tags a {
+  display: inline-block;
+  margin-right: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+.tags a:hover {
+  text-decoration: underline;
+}
+
+/* =======================
+   TAGS INDEX PAGE
+======================= */
+.page-tags ul {
+  list-style: none;
+  padding: 0;
+  columns: 2;
+  column-gap: 3rem;
+}
+
+.page-tags li {
+  margin-bottom: 0.4rem;
+  break-inside: avoid;
+}
+
+@media (max-width: 700px) {
+  .page-tags ul {
+    columns: 1;
+  }
+}
+
+/* =======================
+   PAGE-SPECIFIC TYPOGRAPHY
+======================= */
+
+/* INDEX */
+.page-index .intro {
+  max-width: 520px;
+  font-size: var(--font-size-lg);
+}
+
+.page-index h1 {
+  font-size: var(--font-size-xxl);
+  margin-bottom: 1.25rem;
+}
+
+/* ABOUT */
+.page-about main {
+  max-width: 640px;
+}
+
+.page-about p {
+  font-size: var(--font-size-lg);
+  margin-bottom: 1.25rem;
+}
+
+.page-about h1 {
+  margin-bottom: 1.5rem;
+}
+
+/* ========================
+   FOOTER
+======================== */
+.site-footer {
+  text-align: center;          /* centers text */
+  padding: 1rem 0;             /* spacing top & bottom */
+  font-size: 0.9rem;           /* smaller text */
+  color: var(--color-muted);   /* grayish text */
+  border-top: 1px solid var(--border-color); /* subtle separator */
+  margin-top: 4rem;            /* space above footer */
+}
