@@ -114,13 +114,13 @@ h1 {
 @font-face {
   font-family: "orchard";
   src:
-    url("/fonts/Orchard-Linear.woff2") format("woff2");
+    url("/cooper-undefined/fonts/Orchard-Linear.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: "Chicory";
-  src: url("/fonts/Chicory.woff2") format("woff2");
+  src: url("/cooper-undefined/fonts/Chicory.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
 }

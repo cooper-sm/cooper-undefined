@@ -16,7 +16,7 @@ articles = re.findall(
 tag_map = defaultdict(list)
 
 for article in articles:
-    tags = re.findall(r'/tags/([a-z0-9_-]+)\.html', article)
+    tags = re.findall(r'/cooper-undefined/tags/([a-z0-9_-]+)\.html', article)
     for tag in tags:
         tag_map[tag].append(article)
 
@@ -25,10 +25,10 @@ head = re.search(r'(<head>.*?</head>)', html, re.DOTALL).group(1)
 header = re.search(r'(<header>.*?</header>)', html, re.DOTALL).group(1)
 
 def rewrite_image_paths(article_html):
-    # images/IMG_*.jpeg -> ../images/IMG_*.jpeg
+    # images/IMG_*.jpeg -> ../cooper-undefined/images/IMG_*.jpeg
     return re.sub(
         r'(src=")images/',
-        r'\1/images/',
+        r'\1/cooper-undefined/images/',
         article_html
     )
 
@@ -45,7 +45,7 @@ for tag, entries in tag_map.items():
 
     head = re.sub(r'<title>.*?</title>', f'<title>{tag.title()}</title>', head, flags=re.DOTALL)
 
-    with open(f"./tags/{tag}.html", "w", encoding="utf-8") as f:
+    with open(f"./cooper-undefined/tags/{tag}.html", "w", encoding="utf-8") as f:
         f.write(f"""<!DOCTYPE html>
 <html lang="en">
 {head}
