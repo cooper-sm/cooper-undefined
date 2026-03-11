@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glyph Field</title>
+
+<style>
+@font-face {
+  font-family: "MyFont";
+  src: url("/fonts/prong_0125glyphs.woff");
+}
+
+body {
+  margin: 0;
+  background: white;
+  color: black;
+  font-family: MyFont, monospace;
+  overflow: hidden;
+  font-feature-settings: "onum" 1;
+}
+
+/* Top Bar */
+#top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  padding: 12px 20px;
+  background: white;
+  z-index: 10;
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Palette side */
+#paletteWrapper {
+  flex: 1;
+}
+
+#palette {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#palette span {
+  cursor: pointer;
+  font-size: 28px;
+}
+
+/* Controls side */
+#controls {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14px;
+}
+
+
+/* Info */
+#info {
+  position: relative;
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+}
+
+#infoBox {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  background: white;
+  border: 1px solid black;
+  padding: 10px;
+  font-size: 12px;
+  width: 220px;
+  display: none;
+}
+
+#info:hover #infoBox {
+  display: block;
+}
+
+
+/* Canvas */
+#canvas {
+  position: absolute;
+  top: 140px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  border: 1px solid black;   /* visible boundary */
+  box-sizing: border-box;
+}
+
+/* Glyphs */
+.glyph {
+  position: absolute;
+  display: inline-block;
+  padding: 0.2em; /* Safari trim fix */
+
+  user-select: none;
+  touch-action: none;
+
+  transform-origin: center;
+
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0); /* Firefox raster fix */
+}
+</style>
+</head>
+<body>
+
+<div id="top">
+  <div id="paletteWrapper">
+    <div id="palette"></div>
+  </div>
+  <div id="controls">
+  <button onclick="exportPNG()" class="controlBtn">export</button>
+  
+  <div class="controlRow">
+    <span>bg</span>
+    <input type="color" id="bgColor" value="#ffffff">
+  </div>
+  
+  <div class="controlRow">
+    <span>glyph</span>
+    <input type="color" id="glyphColor" value="#000000">
+  </div>
+
+
+    <div id="info">ⓘ
+      <div id="infoBox">
+        • Click character to add<br>
+        • Drag to move<br>
+        • Scroll to resize<br>
+        • Shift + scroll to rotate<br>
+        • Two-finger pinch to resize & rotate (mobile)<br>
+        • Hold 0.5s to duplicate<br>
+        • Delete / Backspace to remove<br>
+        • Export saves PNG
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="canvas"></div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<script>
+const capitals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const lowercase = "abcdefghijklmnopqrstuvwxyz";
+const others = "0123456789&!?,-.:;`";
+
+const palette = document.getElementById("palette");
+const canvas = document.getElementById("canvas");
+const bgPicker = document.getElementById("bgColor");
+const glyphPicker = document.getElementById("glyphColor");
+
+let selected = null;
+let currentGlyphColor = "#000000";
+
+/* Build palette rows */
+function buildRow(chars) {
+  const row = document.createElement("div");
+  row.className = "row";
+
+  chars.split("").forEach(char => {
+    const span = document.createElement("span");
+    span.textContent = char;
+    span.onclick = () => addGlyph(char);
+    row.appendChild(span);
+  });
+
+  palette.appendChild(row);
+}
+
+buildRow(capitals);
+buildRow(lowercase);
+buildRow(others);
+
+/* Add glyph */
+function addGlyph(char, x=null, y=null) {
+  const el = document.createElement("div");
+  el.className = "glyph";
+  el.textContent = char;
+
+  const canvasRect = canvas.getBoundingClientRect();
+
+  // Default positioning
+  if (x === null || y === null) {
+    // Center of window converted into canvas space
+    x = (window.innerWidth / 2) - canvasRect.left;
+
+    // 200px below top of canvas
+    y = 200;
+  }
+
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  el.style.color = currentGlyphColor;
+
+  el.dataset.rotation = 0;
+  el.dataset.size = 220;
+
+  el.style.fontSize = "220px";
+  updateTransform(el);
+
+  makeInteractive(el);
+  canvas.appendChild(el);
+}
+
+
+/* Rotation only */
+function updateTransform(el) {
+  el.style.transform = `rotate(${el.dataset.rotation}deg)`;
+}
+
+/* Interaction */
+function makeInteractive(el) {
+  let isDragging = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  el.addEventListener("pointerdown", e => {
+    selected = el;
+    el.style.zIndex = Date.now();
+
+    const canvasRect = canvas.getBoundingClientRect();
+
+    const pointerX = e.clientX - canvasRect.left;
+    const pointerY = e.clientY - canvasRect.top;
+
+    dragOffsetX = pointerX - parseFloat(el.style.left);
+    dragOffsetY = pointerY - parseFloat(el.style.top);
+
+    isDragging = true;
+    el.setPointerCapture(e.pointerId);
+  });
+
+  el.addEventListener("pointermove", e => {
+    if (!isDragging) return;
+
+    const canvasRect = canvas.getBoundingClientRect();
+
+    const pointerX = e.clientX - canvasRect.left;
+    const pointerY = e.clientY - canvasRect.top;
+
+    el.style.left = (pointerX - dragOffsetX) + "px";
+    el.style.top  = (pointerY - dragOffsetY) + "px";
+  });
+
+  el.addEventListener("pointerup", e => {
+    isDragging = false;
+    el.releasePointerCapture(e.pointerId);
+  });
+
+  /* Shift + Click to duplicate */
+  el.addEventListener("click", e => {
+    if (e.shiftKey) {
+      const clone = el.cloneNode(true);
+      makeInteractive(clone);
+      canvas.appendChild(clone);
+      selected = clone;
+    }
+  });
+
+  /* Scroll wheel */
+  el.addEventListener("wheel", e => {
+    e.preventDefault();
+    selected = el;
+
+    if (e.shiftKey) {
+      let rot = parseFloat(el.dataset.rotation);
+      rot += e.deltaY * 0.2;
+      el.dataset.rotation = rot;
+      updateTransform(el);
+    } else {
+      let size = parseFloat(el.dataset.size);
+      size += -e.deltaY * 0.2;
+      size = Math.max(10, size);
+
+      el.dataset.size = size;
+      el.style.fontSize = size + "px";
+    }
+  }, { passive: false });
+}
+
+/* Delete */
+document.addEventListener("keydown", e => {
+  if (!selected) return;
+  if (e.key === "Delete" || e.key === "Backspace") {
+    selected.remove();
+    selected = null;
+  }
+});
+
+/* Export */
+function exportPNG() {
+  html2canvas(canvas).then(c => {
+    const link = document.createElement("a");
+    link.download = "glyph-field.png";
+    link.href = c.toDataURL();
+    link.click();
+  });
+}
+
+/* Colors */
+bgPicker.addEventListener("input", e => {
+  document.body.style.background = e.target.value;
+});
+
+glyphPicker.addEventListener("input", e => {
+  currentGlyphColor = e.target.value;
+  if (selected) selected.style.color = currentGlyphColor;
+});
+
+</script>
+
+</body>
+</html>
